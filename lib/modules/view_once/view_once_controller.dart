@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart' as p;
 
 class ViewOnceController extends GetxController {
@@ -12,7 +13,7 @@ class ViewOnceController extends GetxController {
   }
 
   void loadSavedMedia() {
-    if (!Platform.isAndroid) return;
+    if (kIsWeb || !Platform.isAndroid) return;
 
     final rootDir = Directory('/storage/emulated/0');
     final flashSaveDir = Directory(p.join(rootDir.path, 'GhostSave', 'FlashSave'));

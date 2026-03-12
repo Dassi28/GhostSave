@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/message_model.dart';
 import '../../models/media_model.dart';
 
@@ -8,6 +9,13 @@ class StorageService extends GetxService {
   Database? _db;
 
   Future<StorageService> init() async {
+    // sqflite ne supporte pas le Web par défaut sans configuration avancée (sqflite_common_ffi_web)
+    // Comme cette application est avant tout un utilitaire Android, on mock/ignore sur le Web
+    if (kIsWeb) {
+      print('SQLite non supporté sur le Web (StorageService désactivé)');
+      return this;
+    }
+
     String path = join(await getDatabasesPath(), 'ghostsave.db');
     _db = await openDatabase(
       path,
@@ -38,15 +46,13 @@ class StorageService extends GetxService {
 
   Future<int> insertMessage(MessageModel message) async {
     if (_db == null) return -1;
-    // Vérifier si le message correspond à "ce message a été supprimé"
     if (message.text.contains('Ce message a été supprimé') ||
         message.text.contains('This message was deleted')) {
-      // Trouver le dernier message de cet expéditeur et le marquer comme supprimé
       await _db!.rawUpdate(
         'UPDATE messages SET isDeleted = 1 WHERE id = (SELECT id FROM messages WHERE sender = ? ORDER BY timestamp DESC LIMIT 1)',
         [message.sender]
       );
-      return 0; // Pas besoin de sauvegarder le texte "Ce message a été supprimé"
+      return 0;
     } else {
       return await _db!.insert('messages', message.toMap());
     }

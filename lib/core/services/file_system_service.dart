@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:watcher/watcher.dart';
 import 'package:path/path.dart' as p;
@@ -11,6 +12,11 @@ class FileSystemService extends GetxService {
   DirectoryWatcher? _watcher;
 
   Future<FileSystemService> init() async {
+    if (kIsWeb) {
+      print('Accès aux fichiers locaux non supporté sur le Web (FileSystemService désactivé)');
+      return this;
+    }
+
     if (Platform.isAndroid) {
       final rootDir = Directory('/storage/emulated/0');
       _ghostSaveDir = Directory(p.join(rootDir.path, 'GhostSave', 'FlashSave'));
@@ -18,7 +24,6 @@ class FileSystemService extends GetxService {
         await _ghostSaveDir!.create(recursive: true);
       }
 
-      // Chemin habituel pour WhatsApp sur Android 11+
       _whatsAppMediaDir = Directory(p.join(rootDir.path, 'Android', 'media', 'com.whatsapp', 'WhatsApp', 'Media'));
       _whatsAppStatusesDir = Directory(p.join(_whatsAppMediaDir!.path, '.Statuses'));
     }
@@ -26,10 +31,9 @@ class FileSystemService extends GetxService {
   }
 
   void startFlashSaveWatcher() {
+    if (kIsWeb) return;
     if (_whatsAppMediaDir == null || !_whatsAppMediaDir!.existsSync()) return;
 
-    // Warning: this directory watcher is not recursive. It only watches the main Media folder.
-    // Given the constraints of dart watcher, a recursive watcher logic would be ideal here if nested.
     _watcher = DirectoryWatcher(_whatsAppMediaDir!.path);
     _watcher!.events.listen((event) {
       if (event.type == ChangeType.ADD) {
@@ -58,7 +62,7 @@ class FileSystemService extends GetxService {
   }
 
   Future<List<File>> getStatuses() async {
-    if (_whatsAppStatusesDir == null || !_whatsAppStatusesDir!.existsSync()) {
+    if (kIsWeb || _whatsAppStatusesDir == null || !_whatsAppStatusesDir!.existsSync()) {
       return [];
     }
 
@@ -72,7 +76,7 @@ class FileSystemService extends GetxService {
   }
 
   Future<bool> saveStatus(File file) async {
-    if (!Platform.isAndroid) return false;
+    if (kIsWeb || !Platform.isAndroid) return false;
 
     try {
       final rootDir = Directory('/storage/emulated/0');

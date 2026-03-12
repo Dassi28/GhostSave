@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'core/services/notification_service.dart';
@@ -31,6 +32,7 @@ class GhostSaveApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'GhostSave',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         primaryColor: Colors.deepPurple,
         scaffoldBackgroundColor: const Color(0xFF121212),
@@ -73,6 +75,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Future<void> _requestPermissions() async {
+    // Les permissions Android n'ont pas de sens sur le web
+    if (kIsWeb) return;
+
     // Demander les permissions de stockage
     if (await Permission.manageExternalStorage.isDenied) {
       await Permission.manageExternalStorage.request();
