@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-void main() {
+import 'core/services/notification_service.dart';
+import 'core/services/storage_service.dart';
+import 'core/services/file_system_service.dart';
+
+import 'modules/dashboard/dashboard_view.dart';
+import 'modules/messages/messages_view.dart';
+import 'modules/statuses/statuses_view.dart';
+import 'modules/view_once/view_once_view.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialisation des services
+  await Get.putAsync(() => StorageService().init());
+  await Get.putAsync(() => FileSystemService().init());
+
+  // NotificationService dépend de StorageService
+  Get.put(NotificationService());
+
   runApp(const GhostSaveApp());
 }
 
@@ -21,51 +38,89 @@ class GhostSaveApp extends StatelessWidget {
           backgroundColor: Color(0xFF1E1E1E),
           elevation: 0,
         ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1E1E1E),
+          selectedItemColor: Colors.deepPurpleAccent,
+          unselectedItemColor: Colors.grey,
+        ),
       ),
-      initialBinding: InitialBinding(),
-      home: const DashboardView(),
+      home: const MainLayout(),
     );
   }
 }
 
-class InitialBinding extends Bindings {
+class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
+
   @override
-  void dependencies() {
-    Get.put(NotificationService());
-  }
+  State<MainLayout> createState() => _MainLayoutState();
 }
 
-class NotificationService extends GetxService {
-  static const MethodChannel _channel = MethodChannel('com.ghostsave/notifications');
+class _MainLayoutState extends State<MainLayout> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const DashboardView(),
+    const MessagesView(),
+    const StatusesView(),
+    const ViewOnceView(),
+  ];
 
   @override
-  void onInit() {
-    super.onInit();
-    _channel.setMethodCallHandler(_handleMethodCall);
+  void initState() {
+    super.initState();
+    _requestPermissions();
   }
 
-  Future<void> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'onNotificationReceived') {
-      final data = call.arguments as Map<dynamic, dynamic>;
-      final title = data['title'];
-      final text = data['text'];
-      debugPrint('Notification received: $title - $text');
-      // Implémentation : sauvegarder dans SQFlite ici
+  Future<void> _requestPermissions() async {
+    // Demander les permissions de stockage
+    if (await Permission.manageExternalStorage.isDenied) {
+      await Permission.manageExternalStorage.request();
+    }
+    if (await Permission.storage.isDenied) {
+      await Permission.storage.request();
+    }
+    // Demander l'accès aux notifications (renvoie vers les paramètres Android)
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+
+    // Une fois les permissions accordées, on démarre le watcher
+    if (await Permission.manageExternalStorage.isGranted || await Permission.storage.isGranted) {
+       Get.find<FileSystemService>().startFlashSaveWatcher();
     }
   }
-}
-
-class DashboardView extends StatelessWidget {
-  const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('GhostSave Dashboard'),
-      ),
-      body: const Center(
-        child: Text('Bienvenue dans GhostSave'),
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Tableau de bord',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.amp_stories),
+            label: 'Statuts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.visibility_off),
+            label: 'Vues Uniques',
+          ),
+        ],
       ),
     );
   }
