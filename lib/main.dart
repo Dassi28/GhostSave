@@ -7,6 +7,7 @@ import 'core/services/notification_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/file_system_service.dart';
 
+import 'modules/splash/splash_view.dart';
 import 'modules/dashboard/dashboard_view.dart';
 import 'modules/messages/messages_view.dart';
 import 'modules/statuses/statuses_view.dart';
@@ -68,7 +69,7 @@ class GhostSaveApp extends StatelessWidget {
           elevation: 2,
         ),
       ),
-      home: const MainLayout(),
+      home: const SplashView(), // Démarre sur le SplashScreen
     );
   }
 }
