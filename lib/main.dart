@@ -61,8 +61,10 @@ class GhostSaveApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
         cardTheme: const CardThemeData(
-          color: const Color(0xFF202C33), // Couleur surface carte
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: Color(0xFF202C33), // Couleur surface carte
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
           elevation: 2,
         ),
       ),
@@ -81,11 +83,11 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const DashboardView(),
-    const MessagesView(),
-    const StatusesView(),
-    const ViewOnceView(),
+  final List<Widget> _pages = const [
+    DashboardView(),
+    MessagesView(),
+    StatusesView(),
+    ViewOnceView(),
   ];
 
   @override
