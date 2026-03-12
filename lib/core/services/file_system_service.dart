@@ -93,4 +93,25 @@ class FileSystemService extends GetxService {
       return false;
     }
   }
+
+  Future<bool> saveViewOnceToGallery(File file) async {
+    if (kIsWeb || !Platform.isAndroid) return false;
+
+    try {
+      final rootDir = Directory('/storage/emulated/0');
+      final saveDir = Directory(p.join(rootDir.path, 'Pictures', 'GhostSave'));
+      if (!(await saveDir.exists())) {
+        await saveDir.create(recursive: true);
+      }
+
+      final destPath = p.join(saveDir.path, p.basename(file.path));
+      if (!File(destPath).existsSync()) {
+        await file.copy(destPath);
+      }
+      return true;
+    } catch (e) {
+      print('Error saving view once to gallery: $e');
+      return false;
+    }
+  }
 }

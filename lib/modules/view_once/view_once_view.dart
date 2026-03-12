@@ -55,6 +55,43 @@ class ViewOnceView extends StatelessWidget {
                     else
                       Image.file(mediaFile, fit: BoxFit.cover),
 
+                    // Dégradé pour rendre le bouton visible
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.8),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: InkWell(
+                        onTap: () => controller.saveMediaToGallery(mediaFile),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF00A884),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.download, color: Colors.white, size: 16),
+                        ),
+                      ),
+                    ),
+
                     Positioned(
                       top: 4,
                       left: 4,
