@@ -60,7 +60,7 @@ class GhostSaveApp extends StatelessWidget {
           backgroundColor: Color(0xFF00A884),
           foregroundColor: Colors.white,
         ),
-        cardTheme: CardTheme(
+        cardTheme: const CardThemeData(
           color: const Color(0xFF202C33), // Couleur surface carte
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 2,
