@@ -12,16 +12,6 @@ class DashboardView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('GhostSave'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {}, // Fake search icon for UI realism
-          ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Obx(() {
         return RefreshIndicator(

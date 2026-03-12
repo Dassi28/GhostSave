@@ -14,12 +14,6 @@ class MessagesView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Discussions Fantômes'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Obx(() {
         if (controller.messagesList.isEmpty) {
