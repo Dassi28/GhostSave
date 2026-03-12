@@ -13,7 +13,7 @@ class DashboardController extends GetxController {
     loadStats();
   }
 
-  void loadStats() async {
+  Future<void> loadStats() async {
     final messages = await _storageService.getMessages();
     totalMessages.value = messages.length;
     deletedMessages.value = await _storageService.getDeletedMessagesCount();

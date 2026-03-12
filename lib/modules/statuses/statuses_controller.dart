@@ -14,7 +14,7 @@ class StatusesController extends GetxController {
     loadStatuses();
   }
 
-  void loadStatuses() async {
+  Future<void> loadStatuses() async {
     if (kIsWeb) return;
     final statuses = await _fileSystemService.getStatuses();
     statusesList.assignAll(statuses);

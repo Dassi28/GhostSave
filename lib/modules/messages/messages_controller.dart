@@ -13,7 +13,7 @@ class MessagesController extends GetxController {
     loadMessages();
   }
 
-  void loadMessages() async {
+  Future<void> loadMessages() async {
     final msgs = await _storageService.getMessages();
     messagesList.assignAll(msgs);
   }

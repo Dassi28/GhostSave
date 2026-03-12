@@ -12,7 +12,7 @@ class ViewOnceController extends GetxController {
     loadSavedMedia();
   }
 
-  void loadSavedMedia() {
+  Future<void> loadSavedMedia() async {
     if (kIsWeb || !Platform.isAndroid) return;
 
     final rootDir = Directory('/storage/emulated/0');

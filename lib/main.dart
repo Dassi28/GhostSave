@@ -34,16 +34,36 @@ class GhostSaveApp extends StatelessWidget {
       title: 'GhostSave',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.deepPurple,
-        scaffoldBackgroundColor: const Color(0xFF121212),
+        useMaterial3: true,
+        primaryColor: const Color(0xFF00A884), // Vert WhatsApp
+        scaffoldBackgroundColor: const Color(0xFF111B21), // Fond sombre WhatsApp
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E1E1E),
+          backgroundColor: Color(0xFF202C33), // Barre supérieure WhatsApp
           elevation: 0,
+          centerTitle: false,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1E1E1E),
-          selectedItemColor: Colors.deepPurpleAccent,
-          unselectedItemColor: Colors.grey,
+          backgroundColor: Color(0xFF202C33),
+          selectedItemColor: Color(0xFF00A884), // Accent vert
+          unselectedItemColor: Color(0xFF8696A0), // Gris icones inactives
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          elevation: 8,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFF00A884),
+          foregroundColor: Colors.white,
+        ),
+        cardTheme: CardTheme(
+          color: const Color(0xFF202C33), // Couleur surface carte
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 2,
         ),
       ),
       home: const MainLayout(),
@@ -75,22 +95,18 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Future<void> _requestPermissions() async {
-    // Les permissions Android n'ont pas de sens sur le web
     if (kIsWeb) return;
 
-    // Demander les permissions de stockage
     if (await Permission.manageExternalStorage.isDenied) {
       await Permission.manageExternalStorage.request();
     }
     if (await Permission.storage.isDenied) {
       await Permission.storage.request();
     }
-    // Demander l'accès aux notifications (renvoie vers les paramètres Android)
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
     }
 
-    // Une fois les permissions accordées, on démarre le watcher
     if (await Permission.manageExternalStorage.isGranted || await Permission.storage.isGranted) {
        Get.find<FileSystemService>().startFlashSaveWatcher();
     }
@@ -107,23 +123,26 @@ class _MainLayoutState extends State<MainLayout> {
             _currentIndex = index;
           });
         },
-        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Tableau de bord',
+            icon: Icon(Icons.bar_chart_rounded),
+            activeIcon: Icon(Icons.bar_chart_rounded, size: 28),
+            label: 'Tableau',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message),
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble_rounded, size: 28),
             label: 'Messages',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.amp_stories),
+            icon: Icon(Icons.amp_stories_outlined),
+            activeIcon: Icon(Icons.amp_stories_rounded, size: 28),
             label: 'Statuts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.visibility_off),
-            label: 'Vues Uniques',
+            icon: Icon(Icons.visibility_off_outlined),
+            activeIcon: Icon(Icons.visibility_off_rounded, size: 28),
+            label: 'Secrets',
           ),
         ],
       ),
